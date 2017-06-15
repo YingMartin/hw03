@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Home Work 3</title>
+	<script src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+
+<body>
+
+	<script>
+		var theBody = d3.select("body");
+		var svg1 = theBody.append("svg").attr({
+			width: 900,
+			height: 400
+		});
+		d3.json("invoice-taipei.json", function(dataSet) {
+			var fDataSet = dataSet.filter(function(d) {
+				return d.amount > 1000000000 && d.cid == "A" && d.date.substring(0, 6) == "2016/8";
+			});
+			for (var i = 0; i < fDataSet.length; i++) {
+				console.log(fDataSet[i].industry + ":" + fDataSet[i].amount);
+				svg1.append("text").attr({
+					x: 10,
+					y: 15 + 35 * i,
+					"font-size": "14px"
+				}).text(fDataSet[i].industry);
+				svg1.append("rect").attr({
+					x: 250,
+					y: 35 * i,
+					width: fDataSet[i].amount / 100000000,
+					height: 25,
+					fill: "#f00"
+				});
+			}
+		});
+		theBody.append("hr");
+
+		var arr = [85, 60, 99, 49, 77, 82];
+		theBody.append("div");
+		bind(arr);
+		render();
+
+		function bind(data) {
+			var selection = theBody.selectAll("div").data(data);
+			selection.enter().append("div");
+			selection.exit().remove();
+		}
+
+		function render() {
+			d3.selectAll("div").text(function(d, i) {
+					return (i + 1) + ":" + d;
+				})
+				.style({ //p.22
+					color: function(d) {
+						if (d < 70) {
+							return "#f00";
+						} else {
+							return "#000";
+						}
+					}
+				});
+		}
+
+		theBody.append("hr");
+		var w = 900;
+		var h = 300;
+		var p = 100;
+		var svg2 = theBody.append("svg").attr({
+			width: w,
+			height: h,
+			id: "bar-chart"
+		});
+
+		function bind_forSVG2(data) {
+			//for rect
+			var selection = d3.select("svg#bar-chart").selectAll("rect").data(data);
+			selection.enter().append("rect");
+			selection.exit().remove();
+			//for text
+			var selection_t = d3.select("svg#bar-chart").selectAll("text").data(data);
+			selection_t.enter().append("text");
+			selection_t.exit().remove();
+		}
+
+		function render_forSVG2() {
+			//for rect
+			d3.selectAll("#bar-chart>rect").attr({
+				x: function(d, i) {
+					return p + 45 * i; //每個rect寬40，間隔5
+				},
+				y: function(d) {
+					return h - p - d;
+				},
+				width: 40,
+				height: function(d) {
+					return d;
+				},
+				fill: function(d) {
+					if (d < 70) {
+						return "#f00";
+					} else {
+						return "#9e9";
+					}
+				}
+			});
+			//for text
+			d3.selectAll("#bar-chart>text").attr({
+					"font-family": "arial",
+					x: function(d, i) {
+						return p + 45 * i + 10; //每個rect寬40，間隔5
+					},
+					y: function(d) {
+						return h - p + 20;
+					}
+				})
+				.text(function(d) {
+					return d;
+				});
+		}
+
+		function update_forSVG2() {
+			arr.push(random(10, 100));
+			bind_forSVG2(arr);
+			render_forSVG2();
+		}
+
+		function remove_forSVG2() {
+			arr.shift();
+			bind_forSVG2(arr);
+			render_forSVG2();
+		}
+
+		bind_forSVG2(arr);
+		render_forSVG2();
+		theBody.append("br");
+		theBody.append("button").attr({
+			onclick: "update_forSVG2();"
+		}).text("新增");
+		theBody.append("button").attr({
+			onclick: "remove_forSVG2();"
+		}).text("移除");
+
+		function random(n, m) {
+			return Math.floor(Math.random() * (m - n + 1) + n);
+		}
+		
+		theBody.append("hr");
+		var aa = ["中國國民黨", "民主進步黨", "時代力量", "無黨籍團結聯盟", "親民黨"];
+		var arrColor = ["blue", "green", "yellow", "gray", "orange"];
+		var xScale = d3.scale.ordinal().domain(aa).range(arrColor);
+		console.log(xScale("無黨籍團結聯盟"));
+		for (i = 0; i < aa.length; i++) {
+			//console.log(xScale(aa[i]));
+			theBody.append("text").style({
+				color: xScale(aa[i])
+			}).text(aa[i]);
+		}
+
+	</script>
+
+</body>
+
+</html>
